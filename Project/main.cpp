@@ -99,6 +99,12 @@ public:
         cout << YELLOW "Status: " END << (availability ? BLUE "Available" : RED "Out of stock") << END << '\n';
     }
 
+    // Getter methods for Bill class
+    const char* getName() const { return name; }
+    double getPrice() const { return price; }
+    int getQuantity() const { return quantity; }
+    void setQuantity(int qty) { quantity = qty; } // For Bill class to set ordered quantity
+
     friend class Manager;
 
     friend void showOrder(Customer &cust);
@@ -116,6 +122,117 @@ public:
 // Initialize static class member
 int Item::itemCount = 0;
 
+// ============================================================================
+// BILL CLASS DEFINITION - HANDLES BILL GENERATION AND PAYMENT PROCESSING
+// ============================================================================
+class Bill {
+private:
+    char customerName[50];
+    Item orderedItems[50];
+    int itemCount;
+    float subtotal;
+    float discount;
+    float taxRate;
+    float totalAmount;
+    int isPaid; // 0 = not paid, 1 = paid
+
+public:
+    Bill() {
+        strcpy(customerName, "Unknown");
+        itemCount = 0;
+        subtotal = 0;
+        discount = 0;
+        taxRate = 0.1; // 10% tax
+        totalAmount = 0;
+        isPaid = 0;
+    }
+
+    void setCustomerName(char name[]) {
+        strcpy(customerName, name);
+    }
+
+    void addItem(Item i) {
+        if (itemCount < 50) {
+            orderedItems[itemCount++] = i;
+        } else {
+            cout << RED "Item limit reached for this bill!\n" END;
+        }
+    }
+
+    void calculateTotal() {
+        subtotal = 0;
+        for (int i = 0; i < itemCount; i++)
+            subtotal += orderedItems[i].getPrice() * orderedItems[i].getQuantity(); // multiply by quantity
+        totalAmount = subtotal + (subtotal * taxRate) - discount;
+    }
+
+    void displayBill() {
+        cout << BOLD UNDERLINE CYAN "\n--------- CAFETERIA BILL ---------\n" END;
+        cout << "Customer: " << customerName << endl;
+        cout << "----------------------------------\n";
+        cout << left << setw(20) << "Item" << setw(10) << "Price" << setw(10) << "Qty" << setw(12) << "Subtotal\n";
+        cout << "----------------------------------\n";
+
+        for (int i = 0; i < itemCount; i++) {
+            cout << left << setw(20) << orderedItems[i].getName()
+                 << "$" << setw(9) << fixed << setprecision(2) << orderedItems[i].getPrice()
+                 << setw(9) << orderedItems[i].getQuantity()
+                 << "$" << orderedItems[i].getPrice() * orderedItems[i].getQuantity() << endl;
+        }
+
+        cout << "----------------------------------\n";
+        cout << "Subtotal: $" << subtotal << endl;
+        cout << "Tax (10%): $" << subtotal * taxRate << endl;
+        cout << "Discount: -$" << discount << endl;
+        cout << BOLD GREEN "Total: $" << totalAmount << END << endl;
+    }
+
+    void processPayment() {
+        float amountPaid;
+        cout << BLUE "\nEnter payment amount: $" END;
+        cin >> amountPaid;
+
+        if (amountPaid < totalAmount) {
+            cout << RED "Insufficient amount! Payment failed.\n" END;
+            isPaid = 0;
+        } else {
+            cout << GREEN "Payment successful! Change: $" << amountPaid - totalAmount << "\n" END;
+            isPaid = 1;
+        }
+    }
+
+    void saveReceipt() {
+        char fileName[60];
+        strcpy(fileName, customerName);
+        strcat(fileName, "_receipt.txt");
+
+        ofstream out(fileName);
+        if (!out.is_open()) {
+            cout << RED "Error saving receipt!\n" END;
+            return;
+        }
+
+        out << "---------- CAFETERIA RECEIPT ----------\n";
+        out << "Customer: " << customerName << "\n\n";
+        out << left << setw(20) << "Item" << setw(10) << "Price" << setw(10) << "Qty" << setw(12) << "Subtotal\n";
+        out << "---------------------------------------\n";
+        for (int i = 0; i < itemCount; i++) {
+            out << left << setw(20) << orderedItems[i].getName()
+                << "$" << setw(9) << fixed << setprecision(2) << orderedItems[i].getPrice()
+                << setw(9) << orderedItems[i].getQuantity()
+                << "$" << orderedItems[i].getPrice() * orderedItems[i].getQuantity() << "\n";
+        }
+        out << "---------------------------------------\n";
+        out << "Total: $" << totalAmount << "\n";
+        out.close();
+
+        cout << GREEN "Receipt saved as " << fileName << END << endl;
+    }
+
+    bool isPaymentSuccessful() const {
+        return isPaid == 1;
+    }
+};
 
 //nimu's part
 class Manager
@@ -1120,63 +1237,44 @@ void calculateBill(Customer &cust)
     loading();
 }
 
-// payment
+// payment - UPDATED WITH BILL CLASS
 void payment(Customer &cust)
 {
-    if (cust.billAmount == 0.0)
-    {
-        cout << BOLD RED "Your bill is  0.00 now \n" END;
+    if (cust.orders.empty()) {
+        cout << BOLD RED "You have no orders to pay for.\n" END;
         this_thread::sleep_for(chrono::milliseconds(1500));
         return;
     }
 
-    system("cls");
-    cout << BLINK BLUE "Choose payment method: \n" END;
-    cout << BOLD CYAN "1. Cash\n2. Card\n" END;
+    Bill bill;
+    bill.setCustomerName(cust.name);
 
-    int choice = 0;
-    bool validChoice = false;
-    // check correct input
-    while (!validChoice)
-    {
-        cout << ITALIC "Enter your choice (1-2): " END;
-        cin >> choice;
-
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << RED "Invalid input! Please enter 1 or 2.\n" END;
-            continue;
-        }
-
-        if (choice == 1 || choice == 2)
-        {
-            validChoice = true;
-        }
-        else
-        {
-            cout << RED "Invalid choice! Please enter 1 for Cash or 2 for Card.\n" END;
-            tryAgain();
-        }
+    // Add ordered items to the bill
+    for (auto &order : cust.orders) {
+        int idx = order.first; // Item index
+        int qty = order.second;
+        Item temp = item[idx];
+        temp.setQuantity(qty); // set ordered quantity
+        bill.addItem(temp);
     }
 
-    if (choice == 1)
-    {
-        cout << GREEN "Cash payment of  " << fixed << setprecision(2) << cust.billAmount << " successful!\n" END;
-        cust.billAmount = 0;
+    bill.calculateTotal();
+    bill.displayBill();
+    bill.processPayment();
+
+    if (bill.isPaymentSuccessful()) {
+        bill.saveReceipt();
+        // Clear customer orders after successful payment
         cust.orders.clear();
-        this_thread::sleep_for(chrono::milliseconds(1000));
-    }
-    else
-    {
-        cout << GREEN "Card payment of  " << fixed << setprecision(2) << cust.billAmount << " successful!\n" END;
         cust.billAmount = 0;
-        cust.orders.clear();
-        this_thread::sleep_for(chrono::milliseconds(1000));
+        cout << GREEN "Payment completed successfully!\n" END;
+    } else {
+        cout << RED "Payment failed. Please try again.\n" END;
     }
-    loading();
+
+    this_thread::sleep_for(chrono::milliseconds(2000));
 }
+
 // show order
 
 void printBill(Customer &cust)
@@ -1213,6 +1311,7 @@ bool thanksMessage(Customer &cust)
     this_thread::sleep_for(chrono::milliseconds(2000));
     return true;
 }
+
 void customerInterface(void)
 {
     loading();

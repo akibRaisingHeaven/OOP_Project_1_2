@@ -46,6 +46,122 @@ bool strCompNoCap(const char *a, const char *b)
 }
 
 // ================================================================================
+// WASHROOM AND CLEANING FACILITIES CLASSES
+// ================================================================================
+
+class CleaningFacilities;
+
+class Washroom {
+private:
+    static int male_count;
+    static int female_count;
+    static const int male_capacity;
+    static const int female_capacity;
+
+public:
+    // Constructor
+    Washroom() {
+        // No initialization message
+    }
+
+    // Enter Male Washroom
+    void enterMale() {
+        if (male_count < male_capacity) {
+            male_count++;
+            cout << GREEN "Male entered. Current count: " << male_count << END << endl;
+        } else {
+            cout << RED "Male Washroom Full. Please wait..." << END << endl;
+        }
+        cout << *this;  // Show status
+    }
+
+    // Exit Male Washroom
+    void exitMale() {
+        if (male_count > 0) {
+            male_count--;
+            cout << GREEN "Male exited. Current count: " << male_count << END << endl;
+        } else {
+            cout << RED "No one in Male Washroom to exit." << END << endl;
+        }
+        cout << *this;
+    }
+
+    // Enter Female Washroom
+    void enterFemale() {
+        if (female_count < female_capacity) {
+            female_count++;
+            cout << GREEN "Female entered. Current count: " << female_count << END << endl;
+        } else {
+            cout << RED "Female Washroom Full. Please wait..." << END << endl;
+        }
+        cout << *this;  // Show status
+    }
+
+    // Exit Female Washroom
+    void exitFemale() {
+        if (female_count > 0) {
+            female_count--;
+            cout << GREEN "Female exited. Current count: " << female_count << END << endl;
+        } else {
+            cout << RED "No one in Female Washroom to exit." << END << endl;
+        }
+        cout << *this;
+    }
+
+    // Friend function declaration
+    friend class CleaningFacilities;
+
+    // Destructor
+    ~Washroom() {
+        cout << YELLOW "[Washroom Closed]" << END << endl;
+    }
+
+    // Overloaded << operator to display washroom status
+    friend ostream& operator<<(ostream& out, const Washroom& w) {
+        out << endl << BOLD UNDERLINE CYAN "--- Washroom Status ---" END << endl;
+        out << BLUE "Male Count: " END << male_count << "/" << male_capacity << endl;
+        out << PURPLE "Female Count: " END << female_count << "/" << female_capacity << endl;
+        out << "-------------------------" << endl;
+        return out;
+    }
+};
+
+// Static member initialization
+int Washroom::male_count = 0;
+int Washroom::female_count = 0;
+const int Washroom::male_capacity = 25;
+const int Washroom::female_capacity = 15;
+
+// Cleaning Management Class
+class CleaningFacilities {
+private:
+    vector<string> cleaning_times = {
+        "6:00 AM", "10:00 AM", "2:30 PM", "6:00 PM", "9:00 PM", "12:00 AM"
+    };
+
+public:
+    // Friend function declaration
+    friend void facilitiesManager(Washroom& w, CleaningFacilities& c);
+
+    // Overloaded << operator to display cleaning times
+    friend ostream& operator<<(ostream& out, const CleaningFacilities& c) {
+        out << endl << BOLD UNDERLINE CYAN "--- Cleaning Schedule ---" END << endl;
+        for (const auto& time : c.cleaning_times) {
+            out << GREEN "-> " END << time << endl;
+        }
+        out << "-------------------------" << endl;
+        return out;
+    }
+};
+
+// Friend function to display full status and cleaning schedule
+void facilitiesManager(Washroom& w, CleaningFacilities& c) {
+    cout << endl << YELLOW "[Manager Accessing Facilities...]" END << endl;
+    cout << w;
+    cout << c;
+}
+
+// ================================================================================
 // MANAGER CLASS DECLARATION - REPRESENTS THE MANAGER IN THE CAFETERIA SYSTEM
 // ================================================================================
 
@@ -91,12 +207,14 @@ public:
     }
 
     // Display item details with colored formatting
-    void display()
+    friend ostream & operator <<(ostream &out, Item it)
     {
-        cout << YELLOW "Name: " END BLUE << name << END << '\n';
-        cout << YELLOW "Price: " END BLUE << fixed << setprecision(2) << price << END << '\n';
-        cout << YELLOW "Quantity: " END BLUE << quantity << END << '\n';
-        cout << YELLOW "Status: " END << (availability ? BLUE "Available" : RED "Out of stock") << END << '\n';
+        out << YELLOW "Name: " END BLUE << it.name << END << '\n';
+        out << YELLOW "Price: " END BLUE << fixed << setprecision(2) << it.price << END << '\n';
+        out << YELLOW "Quantity: " END BLUE << it.quantity << END << '\n';
+        out << YELLOW "Status: " END << (it.availability ? BLUE "Available" : RED "Out of stock") << END << '\n';
+
+        return out;
     }
 
     // Getter methods for Bill class
@@ -493,17 +611,18 @@ public:
         orders.clear();
     }
     // friend funcction all
-    friend void takeDetails(Customer &cust);
-    friend bool bookSeat(Customer &cust, int t, int s);
-    friend void showOrder(Customer &cust);
-    friend void orderItem(Customer &cust);
-    friend bool cancelItem(Customer &cust);
-    friend void orderFromList(Customer &cust);
-    friend void showOrder(Customer &cust);
-    friend void calculateBill(Customer &cust);
-    friend void payment(Customer &cust);
-    friend void printBill(Customer &cust);
-    friend bool thanksMessage(Customer &cust);
+    friend void takeDetails(Customer &);
+    friend bool bookSeat(Customer &, int, int);
+    friend void showOrder(Customer &);
+    friend void orderItem(Customer &);
+    friend bool cancelItem(Customer &);
+    friend void orderFromList(Customer &);
+    friend void showOrder(Customer &);
+    friend void calculateBill(Customer &);
+    friend void payment(Customer &);
+    friend void printBill(Customer &);
+    friend bool thanksMessage(Customer &);
+    friend void useWashroom(Customer &);
 
     // Save this customer to file1
 
@@ -663,9 +782,9 @@ void viewMenuCard(void)
         // Display each item with its index and details
         for (int i = 0; i < Item::itemCount; ++i)
         {
-            cout << BOLD BLACK "\nIndex: " << i << ".\n" END;
+            cout << BOLD BLACK "\nIndex: " << i + 1 << ".\n" END;
 
-            item[i].display();
+            cout << item[i];
         }
 
         cout << '\n';
@@ -1046,7 +1165,7 @@ void orderFromList(Customer &cust)
         for (int i = 0; i < Item::itemCount; i++)
         {
             cout << ITALIC "Item " END << i + 1 << ":\n";
-            item[i].display();
+            cout << item[i];
             cout << "-------------------------\n";
         }
         int choice = 0;
@@ -1299,7 +1418,7 @@ bool thanksMessage(Customer &cust)
         return false;
     }
     cout << GREEN "Thank you, " << cust.name << "! Please visit again.\n" END;
-    this_thread::sleep_for(chrono::milliseconds(2000));
+    this_thread::sleep_for(chrono::milliseconds(1000));
     Customer::customerCount--;
     // Free the seat after exit
     if (cust.tableNo != -1 && cust.seatNo != -1)
@@ -1308,8 +1427,59 @@ bool thanksMessage(Customer &cust)
         Customer::saveSeatStatus();
     }
 
-    this_thread::sleep_for(chrono::milliseconds(2000));
+    this_thread::sleep_for(chrono::milliseconds(1000));
     return true;
+}
+
+// ============================================================================
+// WASHROOM MANAGEMENT FOR CUSTOMERS
+// ============================================================================
+
+void useWashroom(Customer &cust)
+{
+    Washroom washroom;
+
+    while(true)
+    {
+        loading();
+        cout << BOLD UNDERLINE CYAN "Use Washroom" END << endl;
+        
+        if(strCompNoCap(cust.gender, "male")) 
+        {
+            int action;
+            cout << endl << BOLD CYAN "[Male Washroom] " END << BOLD PURPLE "1. Enter  2. Go Out: " END;
+            cin >> action;
+            if (action == 1) washroom.enterMale();
+            else if (action == 2) washroom.exitMale();
+            else cout << RED "Invalid option." END << endl;
+            break;
+        }
+        else
+        {
+            int action;
+            cout << endl << BOLD CYAN "[Female Washroom] " END << BOLD PURPLE "1. Enter  2. Go Out: " END;
+            cin >> action;
+            if (action == 1) washroom.enterFemale();
+            else if (action == 2) washroom.exitFemale();
+            else cout << RED "Invalid option." END << endl;
+            break;
+        }
+    }
+}
+
+void viewWashroomStatus(void) {
+    loading();
+
+    Washroom washroom;
+
+    cout << washroom;
+
+    cin.clear();
+    cout << YELLOW "\nPress any character to go back..." END;
+    char temp;
+    cin >> temp;
+
+    cin.ignore();
 }
 
 void customerInterface(void)
@@ -1326,50 +1496,64 @@ void customerInterface(void)
         cout << BOLD UNDERLINE CYAN "Customer Menu\n" END;
 
         // Menu options (style unchanged, only corrected order)
-        cout << BOLD PURPLE "1. " END ITALIC GREEN "Book a seat\n";
-        cout << BOLD PURPLE "2. " END ITALIC GREEN "View menu card\n";
-        cout << BOLD PURPLE "3. " END ITALIC GREEN "Order item\n";
-        cout << BOLD PURPLE "4. " END ITALIC GREEN "Order from the menu card\n";
-        cout << BOLD PURPLE "5. " END ITALIC GREEN "View orders\n";
-        cout << BOLD PURPLE "6. " END ITALIC GREEN "Cancel order\n";
-        cout << BOLD PURPLE "7. " END ITALIC GREEN "Calculate your bill\n";
-        cout << BOLD PURPLE "8. " END ITALIC GREEN "Bill payment\n";
-        cout << BOLD PURPLE "9. " END ITALIC RED "Exit\n";
+        cout << BOLD PURPLE " 1. " END ITALIC GREEN "Book a seat\n";
+        cout << BOLD PURPLE " 2. " END ITALIC GREEN "View menu card\n";
+        cout << BOLD PURPLE " 3. " END ITALIC GREEN "Order item\n";
+        cout << BOLD PURPLE " 4. " END ITALIC GREEN "Order from the menu card\n";
+        cout << BOLD PURPLE " 5. " END ITALIC GREEN "View orders\n";
+        cout << BOLD PURPLE " 6. " END ITALIC GREEN "Cancel order\n";
+        cout << BOLD PURPLE " 7. " END ITALIC GREEN "Calculate your bill\n";
+        cout << BOLD PURPLE " 8. " END ITALIC GREEN "Bill payment\n";
+        cout << BOLD PURPLE " 9. " END ITALIC GREEN "Use Washroom\n";
+        cout << BOLD PURPLE "10. " END ITALIC GREEN "View Washroom Status\n";
+        cout << BOLD PURPLE "11. " END ITALIC RED "Exit\n";
 
-        cout << BOLD GREEN " Choice your option " END ITALIC PURPLE "(1-9): ";
+        cout << BOLD GREEN " Choice your option " END ITALIC PURPLE "(1-10): ";
 
-        char choice;
+        int choice;
         cin >> choice;
-        cin.ignore();
+
+        if(cin.fail())
+        {
+            if (tryAgain())
+                continue;
+            return;
+        }
 
         switch (choice)
         {
-        case '1':
+        case 1:
             showAvailableSeats(cust);
             continue;
-        case '2':
+        case 2:
             viewMenuCard();
             continue;
-        case '3':
+        case 3:
             orderItem(cust);
             continue;
-        case '4':
+        case 4:
             orderFromList(cust);
             continue;
-        case '5':
+        case 5:
             showOrder(cust);
             continue;
-        case '6':
+        case 6:
             cancelItem(cust);
             continue;
-        case '7':
+        case 7:
             calculateBill(cust);
             continue;
-        case '8':
+        case 8:
             printBill(cust);
             payment(cust);
             continue;
-        case '9':
+        case 9:
+            useWashroom(cust);
+            continue;
+        case 10:
+            viewWashroomStatus();
+            continue;
+        case 11:
             if (thanksMessage(cust))
                 return;
             else
@@ -1384,10 +1568,25 @@ void customerInterface(void)
     ofstream file("customers.bin", ios::binary | ios::app);
     file.write(reinterpret_cast<const char *>(&cust), sizeof(Customer));
     file.close();
-    loading();
 }
 
-// sajib don't change yet it's not complete ..........
+// ============================================================================
+// CLEANING MANAGEMENT FOR MANAGERS
+// ============================================================================
+
+void cleaningManagement(void)
+{
+    Washroom washroom;
+    CleaningFacilities cleaning;
+    
+    loading();
+    cout << BOLD UNDERLINE CYAN "===== Cleaning Management System =====" END << endl;
+    facilitiesManager(washroom, cleaning);
+    
+    cout << YELLOW "\nPress any key to continue..." END;
+    cin.ignore();
+    cin.get();
+}
 
 /**
  * Interface for adding new items to the menu
@@ -1530,7 +1729,7 @@ void increaseQuantityInterface(void)
                 }
             }
 
-            if (!Manager::changeQuantity(index, quantity))
+            if (!Manager::changeQuantity(index - 1, quantity))
             {
                 cout << RED "Increasing the quantity of the item failed.";
                 cout << "\nItem with this index does not exist.\n" END;
@@ -1630,7 +1829,7 @@ void changePriceInterface(void)
             cout << ITALIC GREEN "Enter the new price: " END;
             cin >> price;
 
-            if (!Manager::setPrice(index, price))
+            if (!Manager::setPrice(index - 1, price))
             {
                 cout << RED "Changing the price of the item failed.";
                 cout << "\nItem with this index does not exist.\n" END;
@@ -1725,7 +1924,7 @@ void discardItemInterface(void)
             cout << ITALIC GREEN "Enter its index: " END;
             cin >> index;
 
-            if (!Manager::discardExistingItem(index))
+            if (!Manager::discardExistingItem(index - 1))
             {
                 cout << RED "Discarding the item failed.";
                 cout << "\nItem with this index does not exist.\n" END;
@@ -1772,6 +1971,33 @@ void discardItemInterface(void)
  */
 void managerInterface(void)
 {
+    while(true)
+    {
+        loading();
+
+        cout << PURPLE ITALIC "Are you the real manager?" END << '\n';
+        cout << CYAN ITALIC "Then prove it by typing the correct password..." END << '\n';
+        cout << BOLD BLACK "Password: " << END;
+
+        string password;
+        getline(cin, password);
+
+        if(password == "Admin @KUET")
+        {
+            cout << GREEN ITALIC "Login Successful!!" << END << '\n';
+            this_thread::sleep_for(chrono::milliseconds(800));
+            system("cls");
+            break;
+        }
+        else
+        {
+            if(tryAgain())
+                continue;
+
+            return;
+        }
+    }
+
     while (true)
     {
         loading();
@@ -1784,9 +2010,10 @@ void managerInterface(void)
         cout << BOLD BLACK "3. " END ITALIC GREEN "Increase The Quantity Of An Existing Item\n" END;
         cout << BOLD BLACK "4. " END ITALIC GREEN "Change The Price Of An Existing Item\n" END;
         cout << BOLD BLACK "5. " END ITALIC GREEN "Discard An Existing Item\n" END;
-        cout << BOLD BLACK "6. " END ITALIC RED "Go Back\n" END;
+        cout << BOLD BLACK "6. " END ITALIC GREEN "Cleaning Management\n" END;
+        cout << BOLD BLACK "7. " END ITALIC RED "Go Back\n" END;
 
-        cout << BLUE "\nEnter your choice (1 - 6): " END;
+        cout << BLUE "\nEnter your choice (1 - 7): " END;
 
         char choice;
         cin >> choice;
@@ -1820,6 +2047,11 @@ void managerInterface(void)
             break;
 
         case '6':
+            cleaningManagement();
+            continue;
+            break;
+
+        case '7':
             return;
             break;
 

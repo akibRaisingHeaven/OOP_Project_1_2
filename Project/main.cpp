@@ -1630,7 +1630,7 @@ void customerInterface(void)
         cout << BOLD PURPLE "10. " END ITALIC GREEN "View Washroom Status\n";
         cout << BOLD PURPLE "11. " END ITALIC RED "Exit\n";
 
-        cout << BOLD GREEN " Choice your option " END ITALIC PURPLE "(1-10): ";
+        cout << BOLD GREEN " Choice your option " END ITALIC PURPLE "(1-11): ";
 
         int choice;
         cin >> choice;
@@ -2337,3 +2337,4 @@ int main()
         }
     }
 }
+

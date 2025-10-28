@@ -911,6 +911,8 @@ void viewMenuCard(void)
             {
                 continue;
             }
+
+            return;
         }
     }
 }
@@ -1141,6 +1143,7 @@ void orderItem(Customer &cust)
                 continue;
             }
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
             break;
         }
 
@@ -1502,6 +1505,7 @@ void payment(Customer &cust)
     }
     else
     {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << RED "Payment failed. Please try again.\n" END;
     }
 

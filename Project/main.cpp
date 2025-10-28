@@ -51,7 +51,8 @@ bool strCompNoCap(const char *a, const char *b)
 
 class CleaningFacilities;
 
-class Washroom {
+class Washroom
+{
 private:
     static int male_count;
     static int female_count;
@@ -60,49 +61,66 @@ private:
 
 public:
     // Constructor
-    Washroom() {
+    Washroom()
+    {
         // No initialization message
     }
 
     // Enter Male Washroom
-    void enterMale() {
-        if (male_count < male_capacity) {
+    void enterMale()
+    {
+        if (male_count < male_capacity)
+        {
             male_count++;
             cout << GREEN "Male entered. Current count: " << male_count << END << endl;
-        } else {
+        }
+        else
+        {
             cout << RED "Male Washroom Full. Please wait..." << END << endl;
         }
         cout << *this;  // Show status
     }
 
     // Exit Male Washroom
-    void exitMale() {
-        if (male_count > 0) {
+    void exitMale()
+    {
+        if (male_count > 0)
+        {
             male_count--;
             cout << GREEN "Male exited. Current count: " << male_count << END << endl;
-        } else {
+        }
+        else
+        {
             cout << RED "No one in Male Washroom to exit." << END << endl;
         }
         cout << *this;
     }
 
     // Enter Female Washroom
-    void enterFemale() {
-        if (female_count < female_capacity) {
+    void enterFemale()
+    {
+        if (female_count < female_capacity)
+        {
             female_count++;
             cout << GREEN "Female entered. Current count: " << female_count << END << endl;
-        } else {
+        }
+        else
+        {
             cout << RED "Female Washroom Full. Please wait..." << END << endl;
         }
         cout << *this;  // Show status
     }
 
     // Exit Female Washroom
-    void exitFemale() {
-        if (female_count > 0) {
+    void exitFemale()
+    {
+        if (female_count > 0)
+        {
             female_count--;
             cout << GREEN "Female exited. Current count: " << female_count << END << endl;
-        } else {
+        }
+        else
+        {
             cout << RED "No one in Female Washroom to exit." << END << endl;
         }
         cout << *this;
@@ -112,12 +130,14 @@ public:
     friend class CleaningFacilities;
 
     // Destructor
-    ~Washroom() {
+    ~Washroom()
+    {
         cout << YELLOW "[Washroom Closed]" << END << endl;
     }
 
     // Overloaded << operator to display washroom status
-    friend ostream& operator<<(ostream& out, const Washroom& w) {
+    friend ostream& operator<<(ostream& out, const Washroom& w)
+    {
         out << endl << BOLD UNDERLINE CYAN "--- Washroom Status ---" END << endl;
         out << BLUE "Male Count: " END << male_count << "/" << male_capacity << endl;
         out << PURPLE "Female Count: " END << female_count << "/" << female_capacity << endl;
@@ -133,9 +153,11 @@ const int Washroom::male_capacity = 25;
 const int Washroom::female_capacity = 15;
 
 // Cleaning Management Class
-class CleaningFacilities {
+class CleaningFacilities
+{
 private:
-    vector<string> cleaning_times = {
+    vector<string> cleaning_times =
+    {
         "6:00 AM", "10:00 AM", "2:30 PM", "6:00 PM", "9:00 PM", "12:00 AM"
     };
 
@@ -144,9 +166,11 @@ public:
     friend void facilitiesManager(Washroom& w, CleaningFacilities& c);
 
     // Overloaded << operator to display cleaning times
-    friend ostream& operator<<(ostream& out, const CleaningFacilities& c) {
+    friend ostream& operator<<(ostream& out, const CleaningFacilities& c)
+    {
         out << endl << BOLD UNDERLINE CYAN "--- Cleaning Schedule ---" END << endl;
-        for (const auto& time : c.cleaning_times) {
+        for (const auto& time : c.cleaning_times)
+        {
             out << GREEN "-> " END << time << endl;
         }
         out << "-------------------------" << endl;
@@ -155,7 +179,8 @@ public:
 };
 
 // Friend function to display full status and cleaning schedule
-void facilitiesManager(Washroom& w, CleaningFacilities& c) {
+void facilitiesManager(Washroom& w, CleaningFacilities& c)
+{
     cout << endl << YELLOW "[Manager Accessing Facilities...]" END << endl;
     cout << w;
     cout << c;
@@ -218,10 +243,22 @@ public:
     }
 
     // Getter methods for Bill class
-    const char* getName() const { return name; }
-    double getPrice() const { return price; }
-    int getQuantity() const { return quantity; }
-    void setQuantity(int qty) { quantity = qty; } // For Bill class to set ordered quantity
+    const char* getName() const
+    {
+        return name;
+    }
+    double getPrice() const
+    {
+        return price;
+    }
+    int getQuantity() const
+    {
+        return quantity;
+    }
+    void setQuantity(int qty)
+    {
+        quantity = qty;    // For Bill class to set ordered quantity
+    }
 
     friend class Manager;
 
@@ -243,7 +280,8 @@ int Item::itemCount = 0;
 // ============================================================================
 // BILL CLASS DEFINITION - HANDLES BILL GENERATION AND PAYMENT PROCESSING
 // ============================================================================
-class Bill {
+class Bill
+{
 private:
     char customerName[50];
     Item orderedItems[50];
@@ -255,77 +293,94 @@ private:
     int isPaid; // 0 = not paid, 1 = paid
 
 public:
-    Bill() {
+
+    Bill()
+    {
         strcpy(customerName, "Unknown");
         itemCount = 0;
         subtotal = 0;
         discount = 0;
-        taxRate = 0.1; // 10% tax
+        taxRate = 0.0; // 10% tax
         totalAmount = 0;
         isPaid = 0;
     }
 
-    void setCustomerName(char name[]) {
+    void setCustomerName(char name[])
+    {
         strcpy(customerName, name);
     }
 
-    void addItem(Item i) {
-        if (itemCount < 50) {
+    void addItem(Item i)
+    {
+        if (itemCount < 50)
+        {
             orderedItems[itemCount++] = i;
-        } else {
+        }
+        else
+        {
             cout << RED "Item limit reached for this bill!\n" END;
         }
     }
 
-    void calculateTotal() {
+
+    void calculateTotal()
+    {
         subtotal = 0;
         for (int i = 0; i < itemCount; i++)
             subtotal += orderedItems[i].getPrice() * orderedItems[i].getQuantity(); // multiply by quantity
         totalAmount = subtotal + (subtotal * taxRate) - discount;
     }
 
-    void displayBill() {
+    void displayBill()
+    {
         cout << BOLD UNDERLINE CYAN "\n--------- CAFETERIA BILL ---------\n" END;
         cout << "Customer: " << customerName << endl;
         cout << "----------------------------------\n";
         cout << left << setw(20) << "Item" << setw(10) << "Price" << setw(10) << "Qty" << setw(12) << "Subtotal\n";
         cout << "----------------------------------\n";
 
-        for (int i = 0; i < itemCount; i++) {
+        for (int i = 0; i < itemCount; i++)
+        {
             cout << left << setw(20) << orderedItems[i].getName()
-                 << "$" << setw(9) << fixed << setprecision(2) << orderedItems[i].getPrice()
+                 << "tk" << setw(9) << fixed << setprecision(2) << orderedItems[i].getPrice()
                  << setw(9) << orderedItems[i].getQuantity()
-                 << "$" << orderedItems[i].getPrice() * orderedItems[i].getQuantity() << endl;
+                 << "tk" << orderedItems[i].getPrice() * orderedItems[i].getQuantity() << endl;
         }
 
         cout << "----------------------------------\n";
-        cout << "Subtotal: $" << subtotal << endl;
-        cout << "Tax (10%): $" << subtotal * taxRate << endl;
-        cout << "Discount: -$" << discount << endl;
-        cout << BOLD GREEN "Total: $" << totalAmount << END << endl;
+        cout << "Subtotal: tk " << subtotal << endl;
+        cout << "Tax :  tk " << subtotal * taxRate << endl;
+        cout << "Discount: -tk " << discount << endl;
+        cout << BOLD GREEN "Total: tk " << totalAmount << END << endl;
     }
 
-    void processPayment() {
+    void processPayment()
+    {
         float amountPaid;
-        cout << BLUE "\nEnter payment amount: $" END;
+        cout << BLUE "\nEnter payment amount: tk " END;
         cin >> amountPaid;
 
-        if (amountPaid < totalAmount) {
+        if (amountPaid < totalAmount)
+        {
             cout << RED "Insufficient amount! Payment failed.\n" END;
             isPaid = 0;
-        } else {
-            cout << GREEN "Payment successful! Change: $" << amountPaid - totalAmount << "\n" END;
+        }
+        else
+        {
+            cout << GREEN "Payment successful! Change: tk " << amountPaid - totalAmount << "\n" END;
             isPaid = 1;
         }
     }
 
-    void saveReceipt() {
+    void saveReceipt()
+    {
         char fileName[60];
         strcpy(fileName, customerName);
         strcat(fileName, "_receipt.txt");
 
         ofstream out(fileName);
-        if (!out.is_open()) {
+        if (!out.is_open())
+        {
             cout << RED "Error saving receipt!\n" END;
             return;
         }
@@ -334,27 +389,33 @@ public:
         out << "Customer: " << customerName << "\n\n";
         out << left << setw(20) << "Item" << setw(10) << "Price" << setw(10) << "Qty" << setw(12) << "Subtotal\n";
         out << "---------------------------------------\n";
-        for (int i = 0; i < itemCount; i++) {
+        for (int i = 0; i < itemCount; i++)
+        {
             out << left << setw(20) << orderedItems[i].getName()
-                << "$" << setw(9) << fixed << setprecision(2) << orderedItems[i].getPrice()
+                << "tk" << setw(9) << fixed << setprecision(2) << orderedItems[i].getPrice()
                 << setw(9) << orderedItems[i].getQuantity()
-                << "$" << orderedItems[i].getPrice() * orderedItems[i].getQuantity() << "\n";
+                << "tk" << orderedItems[i].getPrice() * orderedItems[i].getQuantity() << "\n";
         }
         out << "---------------------------------------\n";
-        out << "Total: $" << totalAmount << "\n";
+        out << "Total: tk" << totalAmount << "\n";
         out.close();
 
         cout << GREEN "Receipt saved as " << fileName << END << endl;
     }
 
-    bool isPaymentSuccessful() const {
+    bool isPaymentSuccessful() const
+    {
         return isPaid == 1;
     }
 };
 
-//nimu's part
+// Manager Class with Operator Overloading
 class Manager
 {
+private:
+    static Item menu[100]; // Static menu array for operator overloading
+    static int count;      // Static count for operator overloading
+
 public:
     /**
     * Searches for an item by name in the global item array
@@ -576,8 +637,55 @@ public:
 
         return discardExistingItem(i);
     }
+
+    // ============================================================================
+    // OPERATOR OVERLOADING IMPLEMENTATION
+    // ============================================================================
+
+    /**
+     * Subscript operator for direct access to menu items
+     * @param index: Index of the item to access
+     * @return: Reference to the Item at specified index
+     */
+    Item& operator[](int index)
+    {
+        if (index >= 0 && index < Item::itemCount)
+        {
+            return item[index];
+        }
+        // Return a reference to a static dummy item if index is out of bounds
+        static Item dummy;
+        return dummy;
+    }
+
+    /**
+     * Addition assignment operator to add items to menu
+     * @param i: Item to add to the menu
+     */
+
+
+    void operator+=(const Item &i)
+    {
+        if (Item::itemCount < 1000)   // Use your existing limit of 1000
+        {
+            item[Item::itemCount] = i;
+            Item::itemCount++;
+
+            // Save to file to maintain consistency
+            ofstream file("menu.bin", ios::binary | ios::app);
+            if (file.is_open())
+            {
+                file.write(reinterpret_cast<const char *>(&i), sizeof(Item));
+                file.close();
+            }
+        }
+    }
 };
-// 82 - 145 > 500 - 1160 sajib part ;
+
+// Static member initialization for the Manager class
+Item Manager::menu[100] = {};
+int Manager::count = 0;
+
 // Customer class
 class Customer
 {
@@ -1028,10 +1136,11 @@ void orderItem(Customer &cust)
             if (cin.fail() || qty < 1 || qty > item[idx].quantity)
             {
                 cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << RED "Invalid quantity! Available: " << item[idx].quantity << "\n" END;
                 continue;
             }
-            cin.ignore();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             break;
         }
 
@@ -1359,7 +1468,8 @@ void calculateBill(Customer &cust)
 // payment - UPDATED WITH BILL CLASS
 void payment(Customer &cust)
 {
-    if (cust.orders.empty()) {
+    if (cust.orders.empty())
+    {
         cout << BOLD RED "You have no orders to pay for.\n" END;
         this_thread::sleep_for(chrono::milliseconds(1500));
         return;
@@ -1369,7 +1479,8 @@ void payment(Customer &cust)
     bill.setCustomerName(cust.name);
 
     // Add ordered items to the bill
-    for (auto &order : cust.orders) {
+    for (auto &order : cust.orders)
+    {
         int idx = order.first; // Item index
         int qty = order.second;
         Item temp = item[idx];
@@ -1381,13 +1492,16 @@ void payment(Customer &cust)
     bill.displayBill();
     bill.processPayment();
 
-    if (bill.isPaymentSuccessful()) {
+    if (bill.isPaymentSuccessful())
+    {
         bill.saveReceipt();
         // Clear customer orders after successful payment
         cust.orders.clear();
         cust.billAmount = 0;
         cout << GREEN "Payment completed successfully!\n" END;
-    } else {
+    }
+    else
+    {
         cout << RED "Payment failed. Please try again.\n" END;
     }
 
@@ -1400,7 +1514,10 @@ void printBill(Customer &cust)
 {
     cout << BOLD "------- BILL -------\n" END;
     cout << "Customer: " << cust.name << "\n";
-    cout << "Table No: " << cust.tableNo << ", Seat No: " << cust.seatNo << "\n";
+    if(cust.tableNo == -1)
+        cout << "Table No: Not booked, Seat No: Not booked\n";
+    else
+        cout << "Table No: " << cust.tableNo << ", Seat No: " << cust.seatNo << "\n";
     for (auto &p : cust.orders)
         cout << item[p.first].name << " x" << p.second << " = "
              << fixed << setprecision(2) << item[p.first].price * p.second << '\n';
@@ -1443,8 +1560,8 @@ void useWashroom(Customer &cust)
     {
         loading();
         cout << BOLD UNDERLINE CYAN "Use Washroom" END << endl;
-        
-        if(strCompNoCap(cust.gender, "male")) 
+
+        if(strCompNoCap(cust.gender, "male"))
         {
             int action;
             cout << endl << BOLD CYAN "[Male Washroom] " END << BOLD PURPLE "1. Enter  2. Go Out: " END;
@@ -1467,7 +1584,8 @@ void useWashroom(Customer &cust)
     }
 }
 
-void viewWashroomStatus(void) {
+void viewWashroomStatus(void)
+{
     loading();
 
     Washroom washroom;
@@ -1578,11 +1696,11 @@ void cleaningManagement(void)
 {
     Washroom washroom;
     CleaningFacilities cleaning;
-    
+
     loading();
     cout << BOLD UNDERLINE CYAN "===== Cleaning Management System =====" END << endl;
     facilitiesManager(washroom, cleaning);
-    
+
     cout << YELLOW "\nPress any key to continue..." END;
     cin.ignore();
     cin.get();
